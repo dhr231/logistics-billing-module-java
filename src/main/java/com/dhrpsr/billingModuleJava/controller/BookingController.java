@@ -1,39 +1,39 @@
 package com.dhrpsr.billingModuleJava.controller;
 
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import java.util.List;
-import java.util.ArrayList;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import com.dhrpsr.billingModuleJava.model.Booking;
+import com.dhrpsr.billingModuleJava.service.BookingService;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @RestController
-@RequestMapping("/bookings")
+@RequestMapping("/api/bookings")
 public class BookingController {
 
     private List<Booking> bookings = new ArrayList<>();
 
+    @Autowired
+    private BookingService bookingService;
 
     @PostMapping
-    public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
-        if (booking.getAmount() <= 0) {
-            return ResponseEntity.badRequest().build();
+    public ResponseEntity<?> createBooking(@RequestBody Booking booking) {
+        try {
+            Booking created = bookingService.createBooking(booking);
+            bookings.add(created);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(Collections.singletonMap("error", ex.getMessage()));
         }
-        // add further validation for mode etc
-        bookings.add(booking);
-        return ResponseEntity.status(HttpStatus.CREATED).body(booking);
     }
-
 
     @GetMapping
     public List<Booking> getAllBookings() {
         return bookings;
     }
-
 }
-
