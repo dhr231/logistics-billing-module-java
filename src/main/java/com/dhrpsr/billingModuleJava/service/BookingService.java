@@ -26,12 +26,15 @@ public class BookingService {
      * @return the saved booking
      * @throws IllegalArgumentException if validation fails
      */
+    private long nextLR = 100000;
     public Booking createBooking(Booking booking) {
         // null checks (defensive)
         if (booking == null) {
             throw new IllegalArgumentException("booking cannot be null");
         }
-
+         if (booking.getLR() == null || booking.getLR().isEmpty()) {
+        booking.setLR(String.valueOf(nextLR++));
+        }
         // Validate mode
         List<String> allowedModes = Arrays.asList("By Road", "By Air", "PTL", "FTL");
         if (booking.getMode() == null || !allowedModes.contains(booking.getMode())) {
